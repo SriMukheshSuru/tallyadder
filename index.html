@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tally Adder</title>
-    <link rel="icon" href="icon.png">
+    <title>Counter</title>
+    <link rel="icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         @font-face {
@@ -30,6 +30,16 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             max-width: 400px;
             width: 100%;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         .app-title {
@@ -65,6 +75,59 @@
             letter-spacing: 2px;
         }
 
+        /* Stopwatch Section */
+        .stopwatch-section {
+            background: #0c2100;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stopwatch-display {
+            /* font-family: 'Orbitron', sans-serif; */
+            font-size: 2rem;
+            color: #00ff40;
+            text-shadow: 0 0 10px rgba(0, 255, 64, 0.3);
+            margin: 0 0 1rem 0;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .stopwatch-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stopwatch-btn {
+            background: linear-gradient(145deg, #6c48ff, #4a2db2);
+            border: none;
+            padding: 0.8rem;
+            font-size: 1rem;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stopwatch-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .play-pause-btn {
+            background: linear-gradient(145deg, #00ff40, #00cc33);
+        }
+
+        .play-pause-btn.playing {
+            background: linear-gradient(145deg, #ff8c00, #cc7000);
+        }
+
+        .reset-stopwatch-btn {
+            background: linear-gradient(145deg, #ff8c00, #cc7000);
+        }
+
         .main-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -74,22 +137,56 @@
 
         .plus-btn, .minus-btn {
             padding: 2rem;
-            font-size: 3rem;
-            font-weight: bold;
+            font-size: 4rem;
+            font-weight: 300;
             border: none;
-            border-radius: 15px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
             color: #fff;
+            position: relative;
+            overflow: hidden;
         }
 
         .plus-btn {
-            background: linear-gradient(145deg, #00ff40, #00cc33);
+            background: linear-gradient(145deg, #228B22, #006400);
+            color: #00ff88;
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
         }
 
         .minus-btn {
-            background: linear-gradient(145deg, #ff4747, #cc3939);
+            background: linear-gradient(145deg, #DC143C, #8B0000);
+            color: #ff6b6b;
+            text-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
+        }
+
+        .plus-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .minus-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .plus-btn:hover::before, .minus-btn:hover::before {
+            transform: translateX(100%);
         }
 
         .plus-btn:active, .minus-btn:active {
@@ -230,18 +327,6 @@
         .modal-btn:active {
             transform: scale(0.95);
         }
-        button {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        * {
-            -webkit-tap-highlight-color: transparent;
-        }
 
         /* Mobile responsiveness */
         @media (max-width: 480px) {
@@ -251,6 +336,10 @@
 
             .counter-display {
                 font-size: 3rem;
+            }
+
+            .stopwatch-display {
+                font-size: 1.6rem;
             }
 
             .plus-btn, .minus-btn {
@@ -263,6 +352,18 @@
 
 <body>
     <div class="calculator">
+        <!-- Stopwatch Section -->
+        <div class="stopwatch-section">
+            <h2 class="stopwatch-display" id="stopwatchDisplay">00:00:00</h2>
+            <div class="stopwatch-controls">
+                <button class="stopwatch-btn play-pause-btn" id="playPauseBtn" onclick="toggleStopwatch()">
+                    <span id="playPauseIcon">▶</span> Play
+                </button>
+                <button class="stopwatch-btn reset-stopwatch-btn" onclick="resetStopwatch()">⟲ Reset</button>
+            </div>
+        </div>
+
+        <!-- Counter Section -->
         <div class="counter-display-container">
             <h1 class="counter-display" id="counterDisplay">0</h1>
         </div>
@@ -273,8 +374,8 @@
         </div>
 
         <div class="control-buttons">
-            <button class="small-btn" onclick="showStartValueModal()">Set Start</button>
             <button class="small-btn reset-btn" onclick="resetCounter()">Reset</button>
+            <button class="small-btn" onclick="showStartValueModal()">Set Start</button>
         </div>
 
         <div class="footer">Made by Sri Mukhesh</div>
@@ -294,6 +395,11 @@
 
     <script>
         let currentCount = 0;
+        
+        // Stopwatch variables
+        let stopwatchTime = 0;
+        let stopwatchInterval = null;
+        let isStopwatchRunning = false;
 
         function updateDisplay() {
             document.getElementById('counterDisplay').textContent = currentCount;
@@ -341,6 +447,52 @@
             }
         }
 
+        // Stopwatch functions
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const ms = Math.floor((milliseconds % 1000) / 10);
+            
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
+        }
+
+        function updateStopwatch() {
+            document.getElementById('stopwatchDisplay').textContent = formatTime(stopwatchTime);
+        }
+
+        function toggleStopwatch() {
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const playPauseIcon = document.getElementById('playPauseIcon');
+            
+            if (isStopwatchRunning) {
+                clearInterval(stopwatchInterval);
+                isStopwatchRunning = false;
+                playPauseIcon.textContent = '▶';
+                playPauseBtn.innerHTML = '<span id="playPauseIcon">▶</span> Play';
+                playPauseBtn.classList.remove('playing');
+            } else {
+                const startTime = Date.now() - stopwatchTime;
+                stopwatchInterval = setInterval(() => {
+                    stopwatchTime = Date.now() - startTime;
+                    updateStopwatch();
+                }, 10);
+                isStopwatchRunning = true;
+                playPauseBtn.innerHTML = '<span id="playPauseIcon">⏸</span> Pause';
+                playPauseBtn.classList.add('playing');
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            stopwatchTime = 0;
+            isStopwatchRunning = false;
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            playPauseBtn.innerHTML = '<span id="playPauseIcon">▶</span> Play';
+            playPauseBtn.classList.remove('playing');
+            updateStopwatch();
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('startValueModal');
@@ -349,15 +501,17 @@
             }
         }
 
-        // Handle Enter key in modal input
-        document.getElementById('startValueInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                setStartValue();
-            }
-        });
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('startValueInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    setStartValue();
+                }
+            });
 
-        // Initialize display
-        updateDisplay();
+            updateDisplay();
+            updateStopwatch();
+        });
     </script>
 </body>
 
