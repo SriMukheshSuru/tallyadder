@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter</title>
+    <link rel="icon" href="logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Segment7Standard';
+            src: url('https://cdn.rawgit.com/raphaelbastide/Segment7/3d0b0b7d/fonts/Segment7Standard.otf') format('opentype');
+        }
+
+        body {
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .calculator {
+            background: #2d2d2d;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .app-title {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            margin-top: 0rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(45deg, #00ff40, #6c48ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(108, 72, 255, 0.3);
+        }
+
+        .counter-display-container {
+            background: #0c2100;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .counter-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            color: #00ff40;
+            text-shadow: 0 0 10px rgba(0, 255, 64, 0.3);
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .main-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .plus-btn, .minus-btn {
+            padding: 2rem;
+            font-size: 3rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+            color: #fff;
+        }
+
+        .plus-btn {
+            background: linear-gradient(145deg, #00ff40, #00cc33);
+        }
+
+        .minus-btn {
+            background: linear-gradient(145deg, #ff4747, #cc3939);
+        }
+
+        .plus-btn:active, .minus-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .plus-btn:hover {
+            background: linear-gradient(145deg, #32CD32, #228B22);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .minus-btn:hover {
+            background: linear-gradient(145deg, #FF1493, #DC143C);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .small-btn {
+            background: linear-gradient(145deg, #6c48ff, #4a2db2);
+            border: none;
+            padding: 1rem;
+            font-size: 1rem;
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .small-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .reset-btn {
+            background: linear-gradient(145deg, #ff8c00, #cc7000);
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .glow {
+            animation: glow 0.3s ease-out;
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 10px rgba(0, 255, 64, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(0, 255, 64, 0.8);
+            }
+            100% {
+                text-shadow: 0 0 10px rgba(0, 255, 64, 0.3);
+            }
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background: #2d2d2d;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 {
+            color: #fff;
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .modal input {
+            background: #0c2100;
+            border: 2px solid #00ff40;
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 1.5rem;
+            color: #00ff40;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .modal input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 64, 0.5);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            background: linear-gradient(145deg, #6c48ff, #4a2db2);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn.cancel {
+            background: linear-gradient(145deg, #555, #333);
+        }
+
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 1.5rem;
+            }
+
+            .counter-display {
+                font-size: 3rem;
+            }
+
+            .plus-btn, .minus-btn {
+                font-size: 2.5rem;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <div class="counter-display-container">
+            <h1 class="counter-display" id="counterDisplay">0</h1>
+        </div>
+
+        <div class="main-buttons">
+            <button class="plus-btn" onclick="increment()">+</button>
+            <button class="minus-btn" onclick="decrement()">−</button>
+        </div>
+
+        <div class="control-buttons">
+            <button class="small-btn reset-btn" onclick="resetCounter()">Reset</button>
+            <button class="small-btn" onclick="showStartValueModal()">Set Start</button>
+        </div>
+
+        <div class="footer">Made by Sri Mukhesh</div>
+    </div>
+
+    <!-- Modal for setting start value -->
+    <div id="startValueModal" class="modal">
+        <div class="modal-content">
+            <h2>Set Start Value</h2>
+            <input type="number" id="startValueInput" placeholder="Enter value...">
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="setStartValue()">Set</button>
+                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCount = 0;
+
+        function updateDisplay() {
+            document.getElementById('counterDisplay').textContent = currentCount;
+            document.getElementById('counterDisplay').classList.add('glow');
+            setTimeout(() => {
+                document.getElementById('counterDisplay').classList.remove('glow');
+            }, 300);
+        }
+
+        function increment() {
+            currentCount++;
+            updateDisplay();
+        }
+
+        function decrement() {
+            currentCount--;
+            updateDisplay();
+        }
+
+        function resetCounter() {
+            currentCount = 0;
+            updateDisplay();
+        }
+
+        function showStartValueModal() {
+            document.getElementById('startValueModal').style.display = 'block';
+            document.getElementById('startValueInput').value = '';
+            document.getElementById('startValueInput').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('startValueModal').style.display = 'none';
+        }
+
+        function setStartValue() {
+            const input = document.getElementById('startValueInput');
+            const value = parseInt(input.value);
+            
+            if (!isNaN(value)) {
+                currentCount = value;
+                updateDisplay();
+                closeModal();
+            } else {
+                alert('Please enter a valid number');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('startValueModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Handle Enter key in modal input
+        document.getElementById('startValueInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                setStartValue();
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+
+</html>
